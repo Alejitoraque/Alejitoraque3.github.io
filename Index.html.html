@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tengo algo especial para ti ❤️</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FAF6F0',
+                        creamCard: '#FFFDF9',
+                        burgundy: '#5C1D2E',
+                        burgundyLight: '#7A2A40',
+                        roseAccent: '#E8B4B8',
+                        goldAccent: '#D4AF37',
+                    },
+                    fontFamily: {
+                        cursive: ['Alex Brush', 'cursive'],
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles & CSS Animations */
+        body {
+            background-color: #FAF6F0;
+            color: #5C1D2E;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Animated Canvas Background */
+        #petal-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 3D Envelope Styles */
+        .envelope-wrapper {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .envelope {
+            position: relative;
+            width: 280px;
+            height: 190px;
+            background-color: #f3e5df;
+            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(92, 29, 46, 0.15);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        @media (min-width: 640px) {
+            .envelope {
+                width: 320px;
+                height: 210px;
+            }
+        }
+
+        .envelope:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(92, 29, 46, 0.25);
+        }
+
+        /* Envelope Flap Animation */
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-top: 110px solid #e2cec4;
+            transform-origin: top;
+            transition: transform 0.6s ease-in-out;
+            z-index: 4;
+        }
+
+        @media (min-width: 640px) {
+            .envelope-flap {
+                border-left-width: 160px;
+                border-right-width: 160px;
+                border-top-width: 120px;
+            }
+        }
+
+        .envelope-pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid #ebd8ce;
+            border-right: 140px solid #ebd8ce;
+            border-bottom: 100px solid #ded0c7;
+            border-radius: 0 0 8px 8px;
+            z-index: 3;
+        }
+
+        @media (min-width: 640px) {
+            .envelope-pocket {
+                border-left-width: 160px;
+                border-right-width: 160px;
+                border-bottom-width: 110px;
+            }
+        }
+
+        /* Wax Seal Stamp */
+        .wax-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 58px;
+            height: 58px;
+            background: radial-gradient(circle at 30% 30%, #a82e46, #5c1d2e);
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .envelope:hover .wax-seal {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .wax-seal-inner {
+            width: 44px;
+            height: 44px;
+            border: 2px dashed rgba(255,255,255,0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Letter Inside Preview */
+        .letter-preview {
+            position: absolute;
+            bottom: 10px;
+            left: 15px;
+            right: 15px;
+            height: 80%;
+            background-color: #FFFDF9;
+            border-radius: 4px;
+            z-index: 2;
+            transition: transform 0.6s ease;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Opened State Effects */
+        .envelope-wrapper.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-wrapper.open .letter-preview {
+            transform: translateY(-80px);
+        }
+
+        .envelope-wrapper.open .wax-seal {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+        }
+
+        /* 3D Flip Card Effect for 'Lo que amo de ti' */
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+            height: 280px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(92, 29, 46, 0.08);
+            border: 1px solid rgba(232, 180, 184, 0.4);
+        }
+
+        .flip-card-front {
+            background-color: #FFFDF9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .flip-card-back {
+            background-color: #FFFDF9;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Timeline Connector Line */
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: #E8B4B8;
+            transform: translateX(-50%);
+        }
+
+        @media (max-width: 768px) {
+            .timeline-line::before {
+                left: 20px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF6F0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E8B4B8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5C1D2E;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-roseAccent selection:text-burgundy">
+
+    <!-- Petals Canvas Animation -->
+    <canvas id="petal-canvas"></canvas>
+
+    <!-- FLOATING MUSIC PLAYER BUTTON -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button id="music-toggle" class="w-14 h-14 bg-white/90 backdrop-blur text-burgundy rounded-full shadow-lg border border-roseAccent/50 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 group" aria-label="Reproducir Música">
+            <i id="music-icon" class="fas fa-music text-xl group-hover:rotate-12 transition-transform"></i>
+        </button>
+        <!-- Background Audio Element -->
+        <audio id="bg-music" loop preload="auto">
+            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-acoustic-guitar-114249.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- ==================== SCREEN 1: LANDING ENVELOPE ==================== -->
+    <section id="landing-screen" class="min-h-screen w-full flex flex-col items-center justify-center p-4 relative z-10 transition-opacity duration-700">
+        <div class="w-full max-w-md mx-auto text-center flex flex-col items-center">
+            
+            <p class="font-cursive text-3xl sm:text-4xl text-roseAccent mb-1 drop-shadow-sm">
+                Un regalo desde el corazón
+            </p>
+
+            <h1 class="font-serif text-3xl sm:text-5xl font-bold text-burgundy leading-tight mb-2 tracking-wide">
+                Tengo algo<br>especial para ti
+            </h1>
+
+            <p class="font-sans text-xs sm:text-sm tracking-widest text-burgundy/70 uppercase mb-8 font-medium">
+                Toca la carta o el sello para abrir
+            </p>
+
+            <!-- Sealed Envelope Container -->
+            <div class="my-4 py-2">
+                <div id="envelope-btn" class="envelope-wrapper" role="button" aria-label="Abrir carta de amor">
+                    <div class="envelope">
+                        <div class="envelope-flap"></div>
+                        <div class="letter-preview flex items-center justify-center">
+                            <i class="fas fa-heart text-roseAccent/40 text-2xl"></i>
+                        </div>
+                        <div class="envelope-pocket"></div>
+                        <div class="wax-seal">
+                            <div class="wax-seal-inner">
+                                <i class="fas fa-heart text-white text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 space-y-1">
+                <h2 class="font-cursive text-3xl sm:text-4xl text-burgundy">
+                    Para mi hermosa princesa...
+                </h2>
+                <p class="font-serif italic text-burgundy/70 text-sm sm:text-base">
+                    Con todo mi amor y cariño
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: MAIN ROMANTIC LETTER CONTENT ==================== -->
+    <main id="letter-content" class="hidden min-h-screen w-full relative z-10 pb-20 opacity-0 transition-opacity duration-1000">
+        
+        <header class="py-12 text-center px-4">
+            <span class="text-roseAccent text-2xl font-serif tracking-widest uppercase">✦ ✦ ✦</span>
+            <h1 class="font-cursive text-5xl sm:text-7xl text-burgundy mt-2 mb-1">Nuestra Historia de Amor</h1>
+            <p class="font-serif italic text-burgundy/70 text-lg">Un rincón especial dedicado a ti</p>
+        </header>
+
+        <div class="max-w-4xl mx-auto px-4 space-y-20">
+
+            <!-- 1. TIME TOGETHER COUNTER -->
+            <section class="bg-creamCard border border-roseAccent/30 rounded-3xl p-6 sm:p-10 shadow-lg text-center space-y-6">
+                <div class="space-y-2">
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy">Llevamos juntos</h2>
+                    <p class="font-sans text-xs text-burgundy/60 uppercase tracking-widest">Cada segundo a tu lado cuenta</p>
+                </div>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                    <div class="bg-cream p-4 rounded-2xl border border-roseAccent/20">
+                        <span id="years" class="block font-serif text-3xl sm:text-4xl font-bold text-burgundy">0</span>
+                        <span class="font-sans text-[10px] sm:text-xs uppercase tracking-wider text-burgundy/70">Años</span>
+                    </div>
+                    <div class="bg-cream p-4 rounded-2xl border border-roseAccent/20">
+                        <span id="months" class="block font-serif text-3xl sm:text-4xl font-bold text-burgundy">0</span>
+                        <span class="font-sans text-[10px] sm:text-xs uppercase tracking-wider text-burgundy/70">Meses</span>
+                    </div>
+                    <div class="bg-cream p-4 rounded-2xl border border-roseAccent/20">
+                        <span id="days" class="block font-serif text-3xl sm:text-4xl font-bold text-burgundy">0</span>
+                        <span class="font-sans text-[10px] sm:text-xs uppercase tracking-wider text-burgundy/70">Días</span>
+                    </div>
+                    <div class="bg-cream p-4 rounded-2xl border border-roseAccent/20">
+                        <span id="hours" class="block font-serif text-3xl sm:text-4xl font-bold text-burgundy">0</span>
+                        <span class="font-sans text-[10px] sm:text-xs uppercase tracking-wider text-burgundy/70">Horas</span>
+                    </div>
+                    <div class="bg-cream p-4 rounded-2xl border border-roseAccent/20">
+                        <span id="minutes" class="block font-serif text-3xl sm:text-4xl font-bold text-burgundy">0</span>
+                        <span class="font-sans text-[10px] sm:text-xs uppercase tracking-wider text-burgundy/70">Minutos</span>
+                    </div>
+                    <div class="bg-cream p-4 rounded-2xl border border-roseAccent/20">
+                        <span id="seconds" class="block font-serif text-3xl sm:text-4xl font-bold text-burgundy">0</span>
+                        <span class="font-sans text-[10px] sm:text-xs uppercase tracking-wider text-burgundy/70">Segundos</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. SPECIAL LOVE LETTER -->
+            <section class="space-y-6">
+                <div class="text-center">
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy">Unas Palabras Para Ti</h2>
+                    <p class="font-sans text-xs text-burgundy/60 uppercase tracking-widest mt-1">Escrito desde lo más profundo de mi corazón</p>
+                </div>
+
+                <div class="bg-creamCard border border-roseAccent/40 rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-5 pointer-events-none text-burgundy text-9xl font-serif">
+                        <i class="fas fa-quote-right"></i>
+                    </div>
+
+                    <div class="font-serif text-burgundy/90 text-lg sm:text-xl leading-relaxed space-y-6 relative z-10">
+                        <p class="font-cursive text-4xl text-burgundy">Mi pingüina hermosa,</p>
+                        
+                        <p>
+                            Aún no me creo que todo empezara tan rápido, pero hoy sé que fue una de las mejores cosas que pudieron pasarme. Poco a poco nos fuimos conociendo, compartiendo nuestro tiempo y descubriendo tantas cosas juntos y sin darme cuenta, te convertiste en alguien indispensable en mi vida.
+                        </p>
+                        
+                        <p>
+                            Fuiste, eres y serás mi primer y único amor. No te imaginas lo feliz que soy a tu lado. Gracias por cada risa, cada momento, cada beso, cada abrazo y cada mordida. Gracias por hacerme sentir tan especial, querido y amado. Gracias por llegar a mi vida y enseñarme a amar.
+                        </p>
+                        
+                        <p>
+                            Quiero vivir esta y todas las vidas que existan a tu lado, porque si algo tengo claro es que volvería a elegirte una y mil veces. Mi princesa, me enseñaste que todo se puede volver un momento especial a tu lado, a querer compartir mis días con alguien y a descubrir lo maravillosa que puede ser la vida cuando tienes a una persona con quien compartirla.
+                        </p>
+
+                        <p>
+                            Espero poder hacerte tan feliz como tú me haces a mí, cuidarte, escucharte y estar para ti siempre que lo necesites. No prometo que todos los días sean perfectos, pero sí prometo poner de mi parte para que nunca te falten razones para sentirte amada. Quiero seguir creando recuerdos contigo, conocer nuevas versiones de nosotros y celebrar cada pequeño logro que tengamos. Quiero que nunca olvides lo importante que eres para mí y que pase lo que pase, siempre tendrás un lugar muy especial en mi corazón. Porque entre tantas casualidades de la vida, encontrarte fue la mejor. TE AMO vida mía.
+                        </p>
+
+                        <div class="pt-6 text-right space-y-1">
+                            <p class="font-cursive text-3xl text-burgundy">Siempre tu lobito,</p>
+                            <p class="font-sans text-xs font-semibold uppercase tracking-widest text-roseAccent">Mo nifẹ rẹ ❤️</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. WHAT I LOVE ABOUT YOU (INTERACTIVE FLIP CARDS) -->
+            <section class="space-y-8">
+                <div class="text-center">
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy">Lo Que Amo De Ti</h2>
+                    <p class="font-sans text-xs text-burgundy/60 uppercase tracking-widest mt-1">Toca cada tarjeta para voltearla</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Card 1 -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front flex flex-col items-center justify-center space-y-4">
+                                <div class="w-16 h-16 bg-roseAccent/20 rounded-full flex items-center justify-center text-burgundy text-2xl">
+                                    <i class="fas fa-smile-beam"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-burgundy">Tu Sonrisa</h3>
+                                <span class="text-[10px] font-sans tracking-widest uppercase text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Toca para descubrir</span>
+                            </div>
+                            <div class="flip-card-back p-4 flex flex-col justify-between">
+                                <div class="w-full h-36 overflow-hidden rounded-xl">
+                                    <img src="SONRISA.jpg" alt="Tu Sonrisa" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='IMG-20251225-WA0002_2.jpg';">
+                                </div>
+                                <p class="font-serif text-sm text-burgundy/90 leading-relaxed italic my-auto px-1">
+                                    "Me da paz y tranquilidad y me hace muy feliz"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front flex flex-col items-center justify-center space-y-4">
+                                <div class="w-16 h-16 bg-roseAccent/20 rounded-full flex items-center justify-center text-burgundy text-2xl">
+                                    <i class="fas fa-hand-holding-heart"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-burgundy">Tu Amar</h3>
+                                <span class="text-[10px] font-sans tracking-widest uppercase text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Toca para descubrir</span>
+                            </div>
+                            <div class="flip-card-back p-4 flex flex-col justify-between">
+                                <div class="w-full h-36 overflow-hidden rounded-xl">
+                                    <img src="Amar.jpg" alt="Tu Bondad" class="w-full h-full object-cover">
+                                </div>
+                                <p class="font-serif text-sm text-burgundy/90 leading-relaxed italic my-auto px-1">
+                                    "La forma tan dulce y sincera en que amas y cuidas de mí."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front flex flex-col items-center justify-center space-y-4">
+                                <div class="w-16 h-16 bg-roseAccent/20 rounded-full flex items-center justify-center text-burgundy text-2xl">
+                                    <i class="fas fa-laugh-squint"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-burgundy">Nuestras Risas</h3>
+                                <span class="text-[10px] font-sans tracking-widest uppercase text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Toca para descubrir</span>
+                            </div>
+                            <div class="flip-card-back p-4 flex flex-col justify-between">
+                                <div class="w-full h-36 overflow-hidden rounded-xl">
+                                    <img src="RISAS.jpg" alt="Nuestras Risas" class="w-full h-full object-cover">
+                                </div>
+                                <p class="font-serif text-sm text-burgundy/90 leading-relaxed italic my-auto px-1">
+                                    "Esos temas de conversación y chistes que solo nosotros dos entendemos."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front flex flex-col items-center justify-center space-y-4">
+                                <div class="w-16 h-16 bg-roseAccent/20 rounded-full flex items-center justify-center text-burgundy text-2xl">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-burgundy">Tu Mirada</h3>
+                                <span class="text-[10px] font-sans tracking-widest uppercase text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Toca para descubrir</span>
+                            </div>
+                            <div class="flip-card-back p-4 flex flex-col justify-between">
+                                <div class="w-full h-36 overflow-hidden rounded-xl">
+                                    <img src="MIRADA.jpg" alt="Tu Mirada" class="w-full h-full object-cover">
+                                </div>
+                                <p class="font-serif text-sm text-burgundy/90 leading-relaxed italic my-auto px-1">
+                                    "Cuando me miras en silencio y siento en el corazón que estoy en mi hogar."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 5 -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front flex flex-col items-center justify-center space-y-4">
+                                <div class="w-16 h-16 bg-roseAccent/20 rounded-full flex items-center justify-center text-burgundy text-2xl">
+                                    <i class="fas fa-mug-hot"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-burgundy">Tus Abrazos</h3>
+                                <span class="text-[10px] font-sans tracking-widest uppercase text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Toca para descubrir</span>
+                            </div>
+                            <div class="flip-card-back p-4 flex flex-col justify-between">
+                                <div class="w-full h-36 overflow-hidden rounded-xl">
+                                    <img src="ABRAZOS.jpg" alt="Tus Abrazos" class="w-full h-full object-cover">
+                                </div>
+                                <p class="font-serif text-sm text-burgundy/90 leading-relaxed italic my-auto px-1">
+                                    "Tienen la fuerza y la calma perfecta para hacer desaparecer cualquier preocupación."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 6 -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front flex flex-col items-center justify-center space-y-4">
+                                <div class="w-16 h-16 bg-roseAccent/20 rounded-full flex items-center justify-center text-burgundy text-2xl">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <h3 class="font-serif text-2xl font-bold text-burgundy">Simplemente Tú</h3>
+                                <span class="text-[10px] font-sans tracking-widest uppercase text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Toca para descubrir</span>
+                            </div>
+                            <div class="flip-card-back p-4 flex flex-col justify-between">
+                                <div class="w-full h-36 overflow-hidden rounded-xl">
+                                    <img src="TU.jpg" alt="Simplemente Tú" class="w-full h-full object-cover">
+                                </div>
+                                <p class="font-serif text-sm text-burgundy/90 leading-relaxed italic my-auto px-1">
+                                    "Cada pequeño detalle y gesto que te hace ser la persona increíble de la que me enamoro a diario."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 4. TIMELINE SECTION -->
+            <section class="space-y-12">
+                <div class="text-center">
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy">Nuestra Línea de Tiempo</h2>
+                    <p class="font-sans text-xs text-burgundy/60 uppercase tracking-widest mt-1">Los momentos más hermosos juntos</p>
+                </div>
+
+                <div class="relative timeline-line space-y-12 pl-6 md:pl-0">
+
+                    <!-- Milestone 1 -->
+                    <div class="relative flex flex-col md:flex-row items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pr-8 text-left md:text-right space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">10 de Noviembre, 2025</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">El Día que Nos Hicimos Novios</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Un día en el que decidimos comenzar esta hermosa historia juntos.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pl-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="Primer dia.jpg" alt="El día que nos hicimos novios" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 2 -->
+                    <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pl-8 text-left space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Conociendo a tus padres</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Momento de nervios</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Fue algo incómodo pero necesario para nuestra relación</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pr-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="SUS.jpg" alt="Tus papás" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 3 -->
+                    <div class="relative flex flex-col md:flex-row items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pr-8 text-left md:text-right space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Tu conociendo a los mios</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Primera impresión</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Mamita casi no llegas ese dia, pero bueno todo salió bien</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pl-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="MIS.jpg" alt="Mis papás" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 4 -->
+                    <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pl-8 text-left space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Trabajito</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">El trailer que hicimos juntos</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Tienes una excelente punteria mi vida, mi ojo es testigo.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pr-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="Trabajito.jpg" alt="La moneda esa" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 5 -->
+                    <div class="relative flex flex-col md:flex-row items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pr-8 text-left md:text-right space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Llamadita</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Correa de barriga</h3>
+                            <p class="font-serif text-sm text-burgundy/80">No se si fue ese dia y todavia no entiendo xq te enojabas JAJAJAJA.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pl-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="Llamadita.jpg" alt="Correa de barriga" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 6 -->
+                    <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pl-8 text-left space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Pinturitas</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Dotes de artistas</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Pintando figuras termine mas pintado yo JAJAJAJA Te amo.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pr-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="PINT.jpg" alt="Bluey" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 7 -->
+                    <div class="relative flex flex-col md:flex-row items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pr-8 text-left md:text-right space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Baile</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Tu presentación</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Disimulaste la perdida y faltaron besos pero fue un encuentro distinto.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pl-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="BAI.jpg" alt="Bilar" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 8 -->
+                    <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pl-8 text-left space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">25 de Julio,2026</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Tu happy birthday</h3>
+                            <p class="font-serif text-sm text-burgundy/80">No fue el mejor día para mi, pero me alegra que lo disfrutaras y estuvieras feliz.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pr-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="CUMP.jpg" alt="Happy" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 9 -->
+                    <div class="relative flex flex-col md:flex-row items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pr-8 text-left md:text-right space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Cine</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Vimos Spiterman</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Agradezco que estuvieras ahí conmigo, ese dia probaste el chocolate de fresa.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pl-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="CINE.jpg" alt="Cine" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 10 -->
+                    <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pl-8 text-left space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Flores Amarillas</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Y chimuela</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Ese día lo disfrute mucho más no se porque pero fue increíble más de lo normal.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pr-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="Flores.jpg" alt="amarillas" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 11 -->
+                    <div class="relative flex flex-col md:flex-row items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pr-8 text-left md:text-right space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Presentación</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Mis pequeñas perdidas</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Por fin luego de tanto estres y ensayar y ensayar nos presentamos y, aunq me equivoque salió excelente Jeje.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pl-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="PRES.jpg" alt="perdida" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 12 -->
+                    <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pl-8 text-left space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Halloween</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Harry Potter y la snitch dorada</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Como raro tu tarde mamita, por eso no cogi dulces pero bueno no pasa nada todo salió excelente nos hicimos famosos, tenemos vídeo y te impresionaste por la decoración.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pr-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="HALO.jpg" alt="Disfraz" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 13 -->
+                    <div class="relative flex flex-col md:flex-row items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pr-8 text-left md:text-right space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">mi Happy birthday</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Comiste helado de chocolate</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Fue un día increibe y especial, me alegra haberlo pasado contigo, tus besos son el mejor regalo q puedo tener te amo demasiado enserio y cada momento a tu lado vale la pena.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pl-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="08.jpg" alt="Mi cumple" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 14 -->
+                    <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pl-8 text-left space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">10 de Noviembre,2026</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Aniversario</h3>
+                            <p class="font-serif text-sm text-burgundy/80">Todavia no me la creo, gracias por cada momento cada detalle cada risa cada alegria cada disculpa cada minuto que pase a tu lado espero poder pasar infinitos mas y la foto queda pendiente.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pr-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="" alt="Pendiente" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 15 -->
+                    <div class="relative flex flex-col md:flex-row items-center justify-between group">
+                        <div class="absolute left-[-30px] md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-roseAccent border-4 border-cream shadow z-10 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-burgundy rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] md:pr-8 text-left md:text-right space-y-2">
+                            <span class="font-sans text-xs font-semibold uppercase tracking-wider text-roseAccent bg-burgundy/5 px-3 py-1 rounded-full">Nuestro Futuro</span>
+                            <h3 class="font-serif text-2xl font-bold text-burgundy">Por mas de ti princesa.</h3>
+                            <p class="font-serif text-sm text-burgundy/80">No se como sea el futuro pero lo que si se esque dare lo mejor de mi para q seas feliz a mi lado y que siempre aunque discutamos o nos enojemos estemos nos amemos hasta el final.</p>
+                        </div>
+                        <div class="w-full md:w-[45%] mt-4 md:mt-0 md:pl-8">
+                            <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-white transform transition-transform group-hover:scale-105">
+                                <img src="FUt.jpg" alt="Mi cumple" class="w-full h-48 object-cover">
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </section>
+
+            <!-- 5. ERES TÚ -->
+            <section class="space-y-6">
+                <div class="text-center">
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy">Eres Tú</h2>
+                    <p class="font-sans text-xs text-burgundy/60 uppercase tracking-widest mt-1">La razón de cada uno de mis días</p>
+                </div>
+
+                <div class="bg-creamCard border border-roseAccent/40 rounded-3xl p-8 sm:p-12 shadow-xl text-center space-y-6 relative overflow-hidden">
+                    <div class="w-20 h-20 bg-roseAccent/20 rounded-full flex items-center justify-center text-burgundy text-3xl mx-auto shadow-inner">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    
+                    <p class="font-serif italic text-xl sm:text-2xl text-burgundy max-w-2xl mx-auto leading-relaxed">
+                        Eres tú mi sueño, mi ilusión y mi deseo, eres esa persona con la imagino compartir mis días y que hoy tengo la suerte de tener a mi lado. Eres mi pensamiento favorito al despertar y esa última razón por la que sonrío antes de dormir. No sé cómo explicarte todo lo que provocas en mí, pero sé que desde que llegaste mis días tienen algo diferente.
+
+                        Quisiera poder detener el tiempo cada vez que estoy contigo, guardar cada instante y volver a vivirlo una y otra vez. Porque no necesito grandes aventuras ni momentos extraordinarios para ser feliz, me basta con tenerte cerca, escuchar tu voz, ver tu sonrisa y saber que estamos juntos.
+
+                        Si pudiera pedirle algo a la vida sería que me permitiera seguir coincidiendo contigo en cada uno de mis días. Quiero conocer cada parte de ti, acompañarte en tus sueños, apoyarte en tus momentos difíciles y celebrar contigo cada alegría. Quiero ser esa persona con la que puedas contar, en quien puedas confiar y con quien nunca tengas que fingir ser alguien diferente.
+
+                        No sé qué nos espera mañana ni cuántas vueltas dará la vida, pero sí sé que hoy te quiero en mis planes, en mis sueños y en cada una de las páginas del libro de nuestra vida que aún nos faltan por escribir. Y si algún día me preguntan qué es lo más bonito que me ha pasado, sin pensarlo dos veces diré que eres tú.
+                    </p>
+
+                    <div class="flex justify-center items-center gap-2 pt-2 text-roseAccent">
+                        <i class="fas fa-sparkles"></i>
+                        <span class="font-cursive text-3xl text-burgundy">Mi lugar seguro</span>
+                        <i class="fas fa-sparkles"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5.5 REPRODUCTOR DEDICADO: "ERES TÚ" - PEINT -->
+            <section class="space-y-6">
+                <div class="text-center">
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy">Una canción que me hace pensar en ti</h2>
+                    <p class="font-sans text-xs text-burgundy/60 uppercase tracking-widest mt-1">Cada momento de mi vida quiero que sea a tu lado</p>
+                </div>
+
+                <div class="bg-creamCard border border-roseAccent/40 rounded-3xl p-6 sm:p-8 shadow-xl max-w-lg mx-auto flex flex-col items-center space-y-6 relative overflow-hidden">
+                    <!-- Portada del Álbum / Canción -->
+                    <div class="relative w-44 h-44 sm:w-52 sm:h-52 rounded-2xl overflow-hidden shadow-md border-2 border-roseAccent/30 group">
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=500&q=80" alt="Eres tú - Peint Cover" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-burgundy/20 flex items-center justify-center backdrop-blur-[2px]">
+                            <div class="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center text-burgundy shadow-lg">
+                                <i class="fas fa-music text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de la canción -->
+                    <div class="text-center space-y-1">
+                        <h3 class="font-serif text-2xl font-bold text-burgundy">Eres Tú</h3>
+                        <p class="font-sans text-sm font-semibold text-roseAccent tracking-wider uppercase">Peint</p>
+                        <p class="font-serif italic text-xs text-burgundy/70 pt-1">"La que me fascina... la que mi mente alinea cuando camina"</p>
+                    </div>
+
+                    <!-- Elemento Audio para "Eres tú - Peint" -->
+                    <audio id="song-peint" preload="metadata">
+                        <source src="Eres tú - Peint.mp3" type="audio/mpeg">
+                    </audio>
+
+                    <!-- Barra de progreso -->
+                    <div class="w-full space-y-2">
+                        <div class="relative w-full h-2 bg-cream rounded-full cursor-pointer overflow-hidden border border-roseAccent/20" id="peint-progress-bar">
+                            <div id="peint-progress" class="h-full bg-burgundy w-0 transition-all duration-200"></div>
+                        </div>
+                        <div class="flex justify-between font-sans text-[11px] text-burgundy/60">
+                            <span id="peint-current-time">0:00</span>
+                            <span id="peint-duration">0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Controles de Reproducción -->
+                    <div class="flex items-center justify-center gap-6 pt-1">
+                        <button id="peint-rw" class="text-burgundy/70 hover:text-burgundy text-lg transition-colors" aria-label="Reiniciar">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button id="peint-play-btn" class="w-14 h-14 bg-burgundy text-white rounded-full flex items-center justify-center shadow-lg hover:bg-burgundyLight active:scale-95 transition-all" aria-label="Reproducir Eres tú - Peint">
+                            <i id="peint-play-icon" class="fas fa-play text-xl ml-1"></i>
+                        </button>
+                        <button id="peint-ff" class="text-burgundy/70 hover:text-burgundy text-lg transition-colors" aria-label="Avanzar 10s">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. NUESTRAS PROMESAS -->
+            <section class="space-y-8">
+                <div class="text-center">
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-burgundy">Nuestras Promesas</h2>
+                    <p class="font-sans text-xs text-burgundy/60 uppercase tracking-widest mt-1">Lo que prometo cuidar siempre</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="bg-creamCard border border-roseAccent/30 rounded-2xl p-6 text-center space-y-3 shadow-md hover:-translate-y-1 transition-transform">
+                        <div class="text-roseAccent text-3xl">
+                            <i class="fas fa-shield-heart"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-burgundy">Cuidarte Siempre</h3>
+                        <p class="font-serif text-sm text-burgundy/80">Estar a tu lado en las buenas y en las malas, protegiendo siempre tu felicidad.</p>
+                    </div>
+
+                    <div class="bg-creamCard border border-roseAccent/30 rounded-2xl p-6 text-center space-y-3 shadow-md hover:-translate-y-1 transition-transform">
+                        <div class="text-roseAccent text-3xl">
+                            <i class="fas fa-plane-departure"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-burgundy">Descubrir Lugares juntos</h3>
+                        <p class="font-serif text-sm text-burgundy/80">Coleccionar atardeceres y lugares increíbles agarrados de la mano.</p>
+                    </div>
+
+                    <div class="bg-creamCard border border-roseAccent/30 rounded-2xl p-6 text-center space-y-3 shadow-md hover:-translate-y-1 transition-transform">
+                        <div class="text-roseAccent text-3xl">
+                            <i class="fas fa-infinity"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-burgundy">Amarte Sin Fin</h3>
+                        <p class="font-serif text-sm text-burgundy/80">Recordarte todos los días lo mucho que vales y lo increíble que eres.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FOOTER CLOSING -->
+            <footer class="text-center py-10 border-t border-roseAccent/20">
+                <p class="font-cursive text-4xl text-burgundy">Hecho con todo mi amor</p>
+                <p class="font-sans text-xs text-burgundy/60 uppercase tracking-widest mt-2">Para ti, por siempre ❤️</p>
+            </footer>
+
+        </div>
+    </main>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        // CONFIGURATION: Relationship start date (November 10, 2025)
+        const START_DATE = new Date(2025, 10, 10, 0, 0, 0); // Month index 10 is November
+
+        // DOM ELEMENTS
+        const landingScreen = document.getElementById('landing-screen');
+        const letterContent = document.getElementById('letter-content');
+        const envelopeBtn = document.getElementById('envelope-btn');
+        const bgMusic = document.getElementById('bg-music');
+        const musicToggle = document.getElementById('music-toggle');
+        const musicIcon = document.getElementById('music-icon');
+
+        let isPlaying = false;
+
+        // OPEN ENVELOPE EVENT HANDLER
+        function openEnvelope() {
+            // Animate envelope opening class
+            envelopeBtn.classList.add('open');
+
+            // Attempt playing audio
+            toggleMusic(true);
+
+            // Transition from Landing to Main Content
+            setTimeout(() => {
+                landingScreen.classList.add('opacity-0');
+                
+                setTimeout(() => {
+                    landingScreen.classList.add('hidden');
+                    letterContent.classList.remove('hidden');
+                    
+                    // Fade in main letter content smoothly
+                    setTimeout(() => {
+                        letterContent.classList.remove('opacity-0');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 50);
+                }, 700);
+            }, 800);
+        }
+
+        envelopeBtn.addEventListener('click', openEnvelope);
+
+        // MUSIC CONTROL
+        function toggleMusic(forcePlay = false) {
+            if (!isPlaying || forcePlay) {
+                bgMusic.play().then(() => {
+                    isPlaying = true;
+                    musicIcon.className = "fas fa-volume-up text-xl";
+                }).catch(err => {
+                    console.log("Autoplay prevent script:", err);
+                });
+            } else {
+                bgMusic.pause();
+                isPlaying = false;
+                musicIcon.className = "fas fa-music text-xl";
+            }
+        }
+
+        musicToggle.addEventListener('click', () => toggleMusic());
+
+        // ACCURATE CALENDAR TIME COUNTER CALCULATOR FUNCTION
+        function updateCounter() {
+            const now = new Date();
+            let diffMs = now - START_DATE;
+
+            if (diffMs < 0) diffMs = 0;
+
+            let years = now.getFullYear() - START_DATE.getFullYear();
+            let months = now.getMonth() - START_DATE.getMonth();
+            let days = now.getDate() - START_DATE.getDate();
+            let hours = now.getHours() - START_DATE.getHours();
+            let minutes = now.getMinutes() - START_DATE.getMinutes();
+            let seconds = now.getSeconds() - START_DATE.getSeconds();
+
+            if (seconds < 0) {
+                seconds += 60;
+                minutes--;
+            }
+            if (minutes < 0) {
+                minutes += 60;
+                hours--;
+            }
+            if (hours < 0) {
+                hours += 24;
+                days--;
+            }
+            if (days < 0) {
+                const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+                days += prevMonth.getDate();
+                months--;
+            }
+            if (months < 0) {
+                months += 12;
+                years--;
+            }
+
+            document.getElementById('years').innerText = years;
+            document.getElementById('months').innerText = months;
+            document.getElementById('days').innerText = days;
+            document.getElementById('hours').innerText = hours;
+            document.getElementById('minutes').innerText = minutes;
+            document.getElementById('seconds').innerText = seconds;
+        }
+
+        setInterval(updateCounter, 1000);
+        updateCounter();
+
+        // FALLING PETALS ANIMATION ON CANVAS
+        const canvas = document.getElementById('petal-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const petals = [];
+        const numPetals = 25;
+
+        class Petal {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height;
+                this.size = Math.random() * 8 + 8;
+                this.speedY = Math.random() * 1 + 0.8;
+                this.speedX = Math.random() * 0.6 - 0.3;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 1 - 0.5;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+
+                if (this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                ctx.globalAlpha = this.opacity;
+
+                // Draw heart/petal shape
+                ctx.fillStyle = '#E8B4B8';
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-this.size / 2, -this.size / 2, -this.size, this.size / 3, 0, this.size);
+                ctx.bezierCurveTo(this.size, this.size / 3, this.size / 2, -this.size / 2, 0, 0);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < numPetals; i++) {
+            petals.push(new Petal());
+        }
+
+        function animatePetals() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            petals.forEach(petal => {
+                petal.update();
+                petal.draw();
+            });
+            requestAnimationFrame(animatePetals);
+        }
+
+        // PEINT MUSIC PLAYER SCRIPT LOGIC
+        const peintAudio = document.getElementById('song-peint');
+        const peintPlayBtn = document.getElementById('peint-play-btn');
+        const peintPlayIcon = document.getElementById('peint-play-icon');
+        const peintProgress = document.getElementById('peint-progress');
+        const peintProgressBar = document.getElementById('peint-progress-bar');
+        const peintCurrentTime = document.getElementById('peint-current-time');
+        const peintDuration = document.getElementById('peint-duration');
+        const peintRw = document.getElementById('peint-rw');
+        const peintFf = document.getElementById('peint-ff');
+
+        function formatTime(secs) {
+            if (isNaN(secs)) return '0:00';
+            const minutes = Math.floor(secs / 60);
+            const seconds = Math.floor(secs % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        if (peintAudio) {
+            peintPlayBtn.addEventListener('click', () => {
+                // Pause background music if it's currently playing
+                if (isPlaying) {
+                    toggleMusic();
+                }
+
+                if (peintAudio.paused) {
+                    peintAudio.play();
+                    peintPlayIcon.className = "fas fa-pause text-xl ml-0";
+                } else {
+                    peintAudio.pause();
+                    peintPlayIcon.className = "fas fa-play text-xl ml-1";
+                }
+            });
+
+            peintAudio.addEventListener('timeupdate', () => {
+                const progress = (peintAudio.currentTime / peintAudio.duration) * 100;
+                peintProgress.style.width = `${progress}%`;
+                peintCurrentTime.innerText = formatTime(peintAudio.currentTime);
+            });
+
+            peintAudio.addEventListener('loadedmetadata', () => {
+                peintDuration.innerText = formatTime(peintAudio.duration);
+            });
+
+            peintAudio.addEventListener('ended', () => {
+                peintPlayIcon.className = "fas fa-play text-xl ml-1";
+                peintProgress.style.width = '0%';
+            });
+
+            peintProgressBar.addEventListener('click', (e) => {
+                const rect = peintProgressBar.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                peintAudio.currentTime = pos * peintAudio.duration;
+            });
+
+            peintRw.addEventListener('click', () => {
+                peintAudio.currentTime = 0;
+            });
+
+            peintFf.addEventListener('click', () => {
+                peintAudio.currentTime = Math.min(peintAudio.duration, peintAudio.currentTime + 10);
+            });
+        }
+
+        window.onload = function() {
+            animatePetals();
+        };
+    </script>
+</body>
+</html>
